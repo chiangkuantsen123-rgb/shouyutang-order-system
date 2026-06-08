@@ -155,14 +155,18 @@ function installAdminLoginPanel() {
 
 async function loadAdminLiveData() {
   if (!document.querySelector(".admin-shell") || liveUser()?.role !== "admin") return;
-  await Promise.allSettled([loadNoticesLive(), loadAccountsLive(), loadProductsLive(), loadOrdersLive()]);
+  await Promise.allSettled([loadNoticesLive(), loadAccountsLive(), loadProductsLive(), loadOrdersLive(), loadBannersLive()]);
 }
 
 async function loadNoticesLive() {
   const list = document.querySelector("#notificationList");
   if (!list) return;
   const data = await liveFetch("/api/notices");
-  if (!data.notices?.length) return;
+  if (!data.notices?.length) {
+    list.innerHTML = '<p class="hint">暂无通知</p>';
+    document.querySelector("#notificationCount").textContent = "0 条待处理";
+    return;
+  }
   list.innerHTML = data.notices
     .map(
       (notice) => `
@@ -213,13 +217,36 @@ async function loadProductsLive() {
           <td>${escapeHtml(product.specification || "")}</td>
           <td>${escapeHtml(product.box_spec || "")}</td>
           <td>${moneyLive(product.price_a)}</td>
+          <td>${escapeHtml(product.category || "")}</td>
           <td>${escapeHtml(product.image_url || "")}</td>
           <td>${product.stock || 0}</td>
-          <td><span class="status done">已上架</span></td>
+          <td><span class="status ${product.status === "active" ? "done" : "preparing"}">${product.status === "active" ? "已上架" : "已下架"}</span></td>
+          <td class="table-actions">
+            <button class="text-button product-toggle" data-id="${product.id}" data-status="${product.status === "active" ? "inactive" : "active"}">${product.status === "active" ? "下架" : "恢复"}</button>
+            <button class="text-button danger product-delete" data-id="${product.id}">删除</button>
+          </td>
         </tr>
       `,
     )
     .join("");
+}
+
+async function updateProductStatus(id, status) {
+  await liveFetch("/api/products", {
+    method: "PATCH",
+    body: JSON.stringify({ id, status }),
+  });
+  liveToast(status === "active" ? "商品已恢复上架" : "商品已下架");
+  loadProductsLive();
+}
+
+async function deleteProductLive(id) {
+  await liveFetch("/api/products", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+  });
+  liveToast("商品已删除");
+  loadProductsLive();
 }
 
 async function loadOrdersLive() {
@@ -227,6 +254,7 @@ async function loadOrdersLive() {
   if (!panel) return;
   const data = await liveFetch("/api/orders");
   const orders = data.orders || [];
+  updateAdminMetrics(orders);
   const buttons = orders
     .map((order, index) => {
       const merchant = order.merchant_accounts || {};
@@ -240,8 +268,24 @@ async function loadOrdersLive() {
     })
     .join("");
   panel.querySelectorAll(".shipment-order").forEach((item) => item.remove());
+  panel.querySelectorAll(".hint").forEach((item) => item.remove());
   panel.insertAdjacentHTML("beforeend", buttons || '<p class="hint">暂无订单</p>');
   bindLiveShipmentOrders();
+}
+
+function updateAdminMetrics(orders) {
+  const now = new Date();
+  const chinaToday = now.toLocaleDateString("zh-CN", { timeZone: "Asia/Shanghai" });
+  const chinaMonth = now.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit" });
+  const todayOrders = orders.filter((order) => new Date(order.created_at).toLocaleDateString("zh-CN", { timeZone: "Asia/Shanghai" }) === chinaToday);
+  const monthOrders = orders.filter((order) => new Date(order.created_at).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit" }) === chinaMonth);
+  const pending = orders.filter((order) => !order.logistics_no || order.status === "preparing");
+  const activeAgents = new Set(monthOrders.map((order) => order.merchant_id).filter(Boolean));
+  const monthAmount = monthOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
+  document.querySelector("#metricTodayOrders").textContent = String(todayOrders.length);
+  document.querySelector("#metricPendingShipments").textContent = String(pending.length);
+  document.querySelector("#metricMonthAmount").textContent = moneyLive(monthAmount);
+  document.querySelector("#metricActiveAgents").textContent = String(activeAgents.size);
 }
 
 function bindLiveShipmentOrders() {
@@ -304,7 +348,7 @@ async function saveProductLive() {
       priceA: fieldValue(form, "A级代理价"),
       stock: fieldValue(form, "库存"),
       category: fieldValue(form, "商品分类"),
-      imageUrl: "./assets/poster-01.jpg",
+      imageUrl: fieldValue(form, "商品图片地址") || "./assets/poster-01.jpg",
     }),
   });
   liveToast("商品已真实上架到数据库");
@@ -335,14 +379,35 @@ async function loadMerchantLiveData() {
   const user = liveUser();
   document.querySelector(".account-box strong").textContent = user.storeName || user.accountCode;
   document.querySelector(".account-box small").textContent = `${user.accountCode} / ${user.priceLevel || "代理价"} / 月结`;
-  await Promise.allSettled([loadMerchantProductsLive(), loadMerchantOrdersLive()]);
+  await Promise.allSettled([loadMerchantProductsLive(), loadMerchantOrdersLive(), loadBannersLive()]);
 }
 
 async function loadMerchantProductsLive() {
   const list = document.querySelector(".product-list");
   if (!list) return;
   const data = await liveFetch("/api/products");
-  list.innerHTML = data.products
+  renderProductFilters(data.products || []);
+  renderMerchantProductList(data.products || [], "全部");
+}
+
+function renderProductFilters(products) {
+  const filters = document.querySelector(".filters");
+  if (!filters) return;
+  const categories = ["全部", ...new Set(products.map((product) => product.category).filter(Boolean))];
+  filters.innerHTML = categories.map((category, index) => `<button class="filter ${index === 0 ? "active" : ""}" data-category="${escapeHtml(category)}">${escapeHtml(category)}</button>`).join("");
+  filters.querySelectorAll(".filter").forEach((button) => {
+    button.addEventListener("click", () => {
+      filters.querySelectorAll(".filter").forEach((item) => item.classList.toggle("active", item === button));
+      renderMerchantProductList(products, button.dataset.category);
+    });
+  });
+}
+
+function renderMerchantProductList(products, category) {
+  const list = document.querySelector(".product-list");
+  if (!list) return;
+  const filtered = category === "全部" ? products : products.filter((product) => product.category === category);
+  list.innerHTML = filtered
     .map(
       (product) => `
         <article class="product-row">
@@ -362,6 +427,73 @@ async function loadMerchantProductsLive() {
     )
     .join("");
   bindSteppersLive();
+}
+
+async function loadBannersLive() {
+  const data = await liveFetch("/api/banners").catch(() => ({ banners: [] }));
+  const banners = data.banners || [];
+  const loginBanner = banners.find((banner) => banner.location === "login");
+  const agentBanners = banners.filter((banner) => banner.location === "agent");
+
+  if (loginBanner && document.querySelector(".login-hero")) {
+    document.querySelector(".login-hero").style.backgroundImage = `linear-gradient(90deg, rgba(24,9,10,.76), rgba(24,9,10,.2)), url("${loginBanner.image_url}")`;
+    document.querySelector(".login-copy h1").textContent = loginBanner.title;
+    const copy = document.querySelector(".login-copy p:not(.eyebrow)");
+    if (copy) copy.textContent = loginBanner.subtitle || "";
+  }
+
+  if (agentBanners.length && document.querySelector(".hero-ad")) {
+    let index = 0;
+    const applyBanner = () => {
+      const banner = agentBanners[index % agentBanners.length];
+      document.querySelector(".hero-copy h2").textContent = banner.title;
+      document.querySelector(".hero-copy p").textContent = banner.subtitle || "";
+      document.querySelector("#heroPoster").src = banner.image_url;
+      document.querySelector("#heroPoster").dataset.liveBanner = "1";
+      document.querySelector("#posterIndex").textContent = String(index + 1);
+      const counter = document.querySelector(".poster-counter");
+      if (counter) counter.lastChild.textContent = `/${agentBanners.length}`;
+    };
+    applyBanner();
+    setInterval(() => {
+      index = (index + 1) % agentBanners.length;
+      applyBanner();
+    }, 3600);
+  }
+}
+
+async function saveBannerLive() {
+  const form = document.querySelector(".banner-form");
+  if (!form || liveUser()?.role !== "admin") return;
+  await liveFetch("/api/banners", {
+    method: "POST",
+    body: JSON.stringify({
+      title: fieldValue(form, "Banner 标题"),
+      subtitle: "",
+      imageUrl: fieldValue(form, "Banner 图片地址") || "./assets/poster-04.jpg",
+      targetView: fieldValue(form, "跳转位置") || "materials",
+      location: fieldValue(form, "显示位置") || "agent",
+      sortOrder: Date.now(),
+    }),
+  });
+  liveToast("Banner 已保存到后台");
+  loadBannersLive();
+}
+
+async function bulkImportProductsLive() {
+  const text = document.querySelector("#bulkImportText")?.value.trim();
+  if (!text) return;
+  const lines = text.split(/\n+/).slice(1).filter(Boolean);
+  for (const line of lines) {
+    const [name, specification, boxSpec, priceA, stock, category, imageUrl] = line.split(",").map((item) => item.trim());
+    if (!name) continue;
+    await liveFetch("/api/products", {
+      method: "POST",
+      body: JSON.stringify({ name, specification, boxSpec, priceA, stock, category, imageUrl }),
+    });
+  }
+  liveToast(`已导入 ${lines.length} 个商品`);
+  loadProductsLive();
 }
 
 async function loadMerchantOrdersLive() {
@@ -462,9 +594,37 @@ function wireLiveApi() {
     }
   });
   document.querySelector("#submitOrderTop")?.addEventListener("click", () => document.querySelector("#submitOrderButton")?.click());
+  document.querySelector("#openBulkImport")?.addEventListener("click", () => {
+    document.querySelector("#bulkImportPanel")?.classList.toggle("open");
+  });
+  document.querySelector("#runBulkImport")?.addEventListener("click", async () => {
+    try {
+      await bulkImportProductsLive();
+    } catch (error) {
+      liveToast(error.message);
+    }
+  });
+  document.querySelector(".banner-form .primary-button")?.addEventListener("click", async () => {
+    try {
+      await saveBannerLive();
+    } catch (error) {
+      liveToast(error.message);
+    }
+  });
+  document.querySelector("#adminProductsBody")?.addEventListener("click", async (event) => {
+    const toggle = event.target.closest(".product-toggle");
+    const remove = event.target.closest(".product-delete");
+    try {
+      if (toggle) await updateProductStatus(toggle.dataset.id, toggle.dataset.status);
+      if (remove) await deleteProductLive(remove.dataset.id);
+    } catch (error) {
+      liveToast(error.message);
+    }
+  });
 }
 
 installAdminLoginPanel();
 wireLiveApi();
+loadBannersLive();
 loadAdminLiveData();
 loadMerchantLiveData();

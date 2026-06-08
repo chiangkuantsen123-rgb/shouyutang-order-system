@@ -155,6 +155,7 @@ steppers.forEach((stepper) => {
 let currentPoster = 0;
 if (heroPoster && posterIndex) {
   setInterval(() => {
+    if (heroPoster.dataset.liveBanner === "1") return;
     currentPoster = (currentPoster + 1) % posters.length;
     heroPoster.src = posters[currentPoster];
     posterIndex.textContent = String(currentPoster + 1);
@@ -535,12 +536,23 @@ document.querySelector("#createAccountButton")?.addEventListener("click", () => 
   showToast("账号已创建：STORE-002 / 初始密码 SYT888");
 });
 
+function setCropRatio(value) {
+  if (!cropBox || !cropPreview) return;
+  cropPreview.classList.toggle("ratio-banner", value === "banner");
+  cropPreview.classList.toggle("ratio-square", value === "square");
+  cropBox.style.left = "";
+  cropBox.style.top = "";
+  cropBox.style.right = "";
+  cropBox.style.bottom = "";
+  cropBox.style.width = "";
+  cropBox.style.height = "";
+  cropBox.style.aspectRatio = value === "banner" ? "16 / 9" : value === "square" ? "1 / 1" : "3 / 4";
+  cropBox.style.inset = value === "banner" ? "8%" : value === "square" ? "14%" : "10% 18%";
+}
+
 document.querySelector("#cropRatio")?.addEventListener("change", (event) => {
-  if (!cropBox) return;
   const value = event.target.value;
-  if (value === "banner") cropBox.style.inset = "28% 8%";
-  if (value === "poster") cropBox.style.inset = "10% 18%";
-  if (value === "square") cropBox.style.inset = "18% 18%";
+  setCropRatio(value);
   showToast("裁剪比例已切换");
 });
 

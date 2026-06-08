@@ -455,10 +455,7 @@ button {
 }
 
 .promo-strip span {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--muted);
-  font-size: 13px;
+  display: none;
 }
 
 .promo-strip strong {
@@ -839,12 +836,21 @@ button {
   overflow: hidden;
   border-radius: 8px;
   background: #18090a;
+  aspect-ratio: 3 / 4;
+}
+
+.crop-preview.ratio-banner {
+  aspect-ratio: 16 / 9;
+}
+
+.crop-preview.ratio-square {
+  aspect-ratio: 1 / 1;
 }
 
 .crop-preview img {
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  height: 100%;
   object-fit: cover;
   opacity: 0.86;
 }
@@ -1293,6 +1299,32 @@ button {
   max-width: 100%;
   min-width: 0;
   overflow-x: auto;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.bulk-import-panel {
+  display: none;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.bulk-import-panel.open {
+  display: grid;
+}
+
+.bulk-import-panel textarea {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
 }
 
 table {

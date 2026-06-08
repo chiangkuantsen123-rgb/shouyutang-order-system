@@ -72,9 +72,22 @@ create table if not exists material_groups (
   created_at timestamptz default now()
 );
 
+create table if not exists banners (
+  id uuid primary key default gen_random_uuid(),
+  location text default 'agent',
+  title text not null,
+  subtitle text,
+  image_url text,
+  target_view text default 'materials',
+  sort_order integer default 1,
+  status text default 'active',
+  created_at timestamptz default now()
+);
+
 create index if not exists idx_orders_merchant_created on orders (merchant_id, created_at desc);
 create index if not exists idx_notices_created on notices (created_at desc);
 create index if not exists idx_material_groups_updated on material_groups (updated_at desc);
+create index if not exists idx_banners_location_sort on banners (location, sort_order);
 
 insert into merchant_accounts (account_code, store_name, contact_name, phone, address, price_level, password_hash, status)
 values
@@ -83,9 +96,9 @@ on conflict (account_code) do nothing;
 
 insert into products (name, specification, box_spec, price_a, stock, category, image_url, status)
 values
-  ('洗润头皮养护液', '500ml', '24 瓶/箱', 68, 186, '洗护', './assets/poster-01.jpg', 'active'),
-  ('首浴堂头皮发膜', '250g', '36 罐/箱', 88, 320, '头皮护理', './assets/poster-02.jpg', 'active'),
-  ('川源护理乳', '1000ml', '12 瓶/箱', 126, 94, '项目耗材', './assets/poster-03.jpg', 'active')
+  ('首浴堂清润洗发水', '500ml', '24 瓶/箱', 58, 120, '洗护', './assets/poster-01.jpg', 'active'),
+  ('首浴堂修护发膜', '250g', '36 罐/箱', 88, 80, '头皮护理', './assets/poster-02.jpg', 'active'),
+  ('首浴堂柔肤毛巾', '30x70cm', '100 条/箱', 6.8, 500, '项目耗材', './assets/poster-03.jpg', 'active')
 on conflict do nothing;
 
 insert into notices (type, title, content, target_view, status)
@@ -128,3 +141,10 @@ values
     'active'
   )
 on conflict (id) do nothing;
+
+insert into banners (location, title, subtitle, image_url, target_view, sort_order, status)
+values
+  ('login', '代理商登录后，才能查看价格、下单、物流和账单', '未登录时只展示品牌入口和登录表单。', './assets/poster-04.jpg', 'login', 1, 'active'),
+  ('agent', '首浴汤法，东方头皮汤疗的复兴', '总部发布的新品、项目步骤、培训通知、门店活动，会展示给所有代理商账号。', './assets/poster-06.jpg', 'materials', 1, 'active'),
+  ('agent', '新品物料与门店活动', '门店可下载总部实时发布的海报和培训资料。', './assets/poster-01.jpg', 'materials', 2, 'active')
+on conflict do nothing;

@@ -54,10 +54,10 @@
           </div>
 
           <div class="metrics">
-            <div class="metric"><span>今日叫货单</span><strong>18</strong></div>
-            <div class="metric"><span>待填物流</span><strong>7</strong></div>
-            <div class="metric"><span>本月月结</span><strong>¥42,860</strong></div>
-            <div class="metric"><span>活跃代理</span><strong>26</strong></div>
+            <div class="metric"><span>今日叫货单</span><strong id="metricTodayOrders">0</strong></div>
+            <div class="metric"><span>待填物流</span><strong id="metricPendingShipments">0</strong></div>
+            <div class="metric"><span>本月月结</span><strong id="metricMonthAmount">¥0</strong></div>
+            <div class="metric"><span>活跃代理</span><strong id="metricActiveAgents">0</strong></div>
           </div>
 
           <section class="notification-center">
@@ -142,7 +142,7 @@
               <p class="eyebrow">商品创建后，会显示到代理端拿货页</p>
               <h2>商品上架</h2>
             </div>
-            <button class="secondary-button" data-feedback="已打开批量导入模板">批量导入</button>
+            <button class="secondary-button" id="openBulkImport">批量导入</button>
           </div>
 
           <form class="logistics-form product-admin-form">
@@ -152,18 +152,37 @@
             <label>箱规<input value="36 罐/箱" /></label>
             <label>A级代理价<input value="88" /></label>
             <label>库存<input value="320" /></label>
-            <label>商品分类<input value="头皮护理" /></label>
+            <label>商品分类
+              <select>
+                <option>洗护</option>
+                <option>头皮护理</option>
+                <option>项目耗材</option>
+              </select>
+            </label>
             <label class="file-upload product-image-upload">
               商品图片
               <input type="file" accept="image/*" />
               <span>选择产品图或海报</span>
             </label>
+            <label>商品图片地址<input value="./assets/poster-02.jpg" /></label>
               <button class="primary-button" id="saveProductButton" data-feedback="商品已保存并上架">保存并上架到独立站</button>
           </form>
 
+          <section class="bulk-import-panel" id="bulkImportPanel">
+            <div class="panel-head">
+              <h3>批量导入商品</h3>
+              <span>一行一个商品，用逗号隔开</span>
+            </div>
+            <textarea id="bulkImportText">商品名称,规格,箱规,A级代理价,库存,商品分类,图片地址
+首浴堂清润洗发水,500ml,24 瓶/箱,58,120,洗护,./assets/poster-01.jpg
+首浴堂修护发膜,250g,36 罐/箱,88,80,头皮护理,./assets/poster-02.jpg
+首浴堂柔肤毛巾,30x70cm,100 条/箱,6.8,500,项目耗材,./assets/poster-03.jpg</textarea>
+            <button class="primary-button" id="runBulkImport">导入并上架</button>
+          </section>
+
           <div class="table-wrap">
             <table>
-              <thead><tr><th>商品</th><th>规格</th><th>箱规</th><th>代理价</th><th>商品图片</th><th>库存</th><th>状态</th></tr></thead>
+              <thead><tr><th>商品</th><th>规格</th><th>箱规</th><th>代理价</th><th>分类</th><th>商品图片</th><th>库存</th><th>状态</th><th>操作</th></tr></thead>
               <tbody id="adminProductsBody">
                 <tr><td>洗润头皮养护液</td><td>500ml</td><td>24 瓶/箱</td><td>¥68</td><td>poster-01.jpg</td><td>186</td><td><span class="status done">已上架</span></td></tr>
                 <tr><td>首浴堂头皮发膜</td><td>250g</td><td>36 罐/箱</td><td>¥88</td><td>poster-02.jpg</td><td>320</td><td><span class="status done">已上架</span></td></tr>
@@ -251,11 +270,18 @@
             <form class="banner-form">
               <label>Banner 标题<input value="首浴汤法，东方头皮汤疗的复兴" /></label>
               <label>跳转位置<input value="物料宣传 / 品牌经典海报" /></label>
+              <label>显示位置
+                <select>
+                  <option value="agent">代理首页</option>
+                  <option value="login">代理商登录页</option>
+                </select>
+              </label>
               <label class="file-upload">
                 Banner 图片
                 <input type="file" accept="image/*" />
                 <span>选择首页 Banner 图</span>
               </label>
+              <label>Banner 图片地址<input value="./assets/poster-04.jpg" /></label>
               <label>显示状态<input value="已启用，全部代理可见" /></label>
               <button class="primary-button" data-feedback="Banner 轮播设置已保存">保存 Banner 设置</button>
             </form>

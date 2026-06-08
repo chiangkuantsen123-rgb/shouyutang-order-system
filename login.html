@@ -25,8 +25,8 @@
           <p class="eyebrow">账号登录</p>
           <h2>进入代理订货系统</h2>
         </div>
-        <label>代理账号<input id="loginAccount" value="STORE-001" /></label>
-        <label>登录密码<input id="loginPassword" type="password" value="123456" /></label>
+        <label>代理账号<input id="loginAccount" placeholder="请输入总部开通的账号" autocomplete="username" /></label>
+        <label>登录密码<input id="loginPassword" type="password" placeholder="请输入密码" autocomplete="current-password" /></label>
         <button class="primary-button wide" id="loginButton">登录进入</button>
         <div class="login-actions">
           <button class="secondary-button" data-open-apply="agent">申请成为代理</button>
@@ -44,10 +44,10 @@
         </div>
       </div>
       <form class="application-form">
-        <label>申请原因<input value="想成为首浴堂代理，门店需要开通拿货权限" /></label>
-        <label>店家信息<input value="上海静安二店 / 头疗洗护门店" /></label>
-        <label>联系人<input value="张女士" /></label>
-        <label>电话号码<input value="13800000000" /></label>
+        <label>申请原因<input placeholder="例如：门店需要开通拿货权限" /></label>
+        <label>店家信息<input placeholder="门店名称 / 城市 / 类型" /></label>
+        <label>联系人<input placeholder="联系人姓名" /></label>
+        <label>电话号码<input placeholder="手机号码" /></label>
         <button class="primary-button wide" id="submitApplication" data-feedback="申请已提交，总台将收到通知">提交申请</button>
       </form>
     </section>
