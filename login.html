@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首浴堂代理登录</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-shell">
+      <section class="login-hero">
+        <div class="login-brand">
+          <img src="./logo-horizontal.png" alt="首浴堂 Head Bathing" />
+          <span>代理订货独立站</span>
+        </div>
+        <div class="login-copy">
+          <p class="eyebrow">未登录状态</p>
+          <h1>代理商登录后，才能查看价格、下单、物流和账单</h1>
+          <p>未登录时只展示品牌入口、登录表单、代理申请入口和公开宣传内容，不显示代理价、订单资料、账单和培训物料。</p>
+        </div>
+      </section>
+
+      <section class="login-panel">
+        <div>
+          <p class="eyebrow">账号登录</p>
+          <h2>进入代理订货系统</h2>
+        </div>
+        <label>代理账号<input id="loginAccount" value="STORE-001" /></label>
+        <label>登录密码<input id="loginPassword" type="password" value="123456" /></label>
+        <button class="primary-button wide" id="loginButton">登录进入</button>
+        <div class="login-actions">
+          <button class="secondary-button" data-open-apply="agent">申请成为代理</button>
+          <button class="secondary-button" data-open-apply="account">联系总部开通账号</button>
+        </div>
+        <p class="hint">账号由总台后台创建。代理商拿到账号密码后，登录进入自己的订货页面。</p>
+      </section>
+    </main>
+
+    <section class="application-panel" id="applicationPanel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" id="applicationType">代理申请</p>
+          <h2>提交给总台审核</h2>
+        </div>
+      </div>
+      <form class="application-form">
+        <label>申请原因<input value="想成为首浴堂代理，门店需要开通拿货权限" /></label>
+        <label>店家信息<input value="上海静安二店 / 头疗洗护门店" /></label>
+        <label>联系人<input value="张女士" /></label>
+        <label>电话号码<input value="13800000000" /></label>
+        <button class="primary-button wide" id="submitApplication" data-feedback="申请已提交，总台将收到通知">提交申请</button>
+      </form>
+    </section>
+
+    <script src="./app.js?v=20260608-7"></script>
+    <script src="./live-api.js?v=20260608-1"></script>
+  </body>
+</html>

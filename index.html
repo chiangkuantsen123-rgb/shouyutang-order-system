@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首浴堂代理订货独立站</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="./logo-horizontal.png" alt="首浴堂 Head Bathing" />
+          <div>
+            <strong>首浴堂</strong>
+            <span>代理订货独立站</span>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-view="store">我要拿货</button>
+          <button class="nav-item" data-view="materials">物料宣传</button>
+          <button class="nav-item" data-view="training">培训物料</button>
+          <button class="nav-item" data-view="orders">我的订单</button>
+          <button class="nav-item" data-view="bills">我的账单</button>
+        </nav>
+
+        <div class="account-box">
+          <span>当前代理账号</span>
+          <strong>上海静安一店</strong>
+          <small>STORE-001 / A级代理价 / 月结</small>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">代理商登录后看到的页面</p>
+            <h1>看物料、选商品、提交拿货单，再等总台填写物流</h1>
+          </div>
+          <div class="top-actions">
+            <a class="secondary-link" href="./login.html">退出登录</a>
+            <button class="icon-button" title="搜索">⌕</button>
+            <button class="primary-button" id="submitOrderTop">提交拿货单</button>
+          </div>
+        </header>
+
+        <section class="hero-ad" aria-label="重点宣传位">
+          <div class="hero-copy">
+            <span class="ad-label">代理首页 Banner</span>
+            <h2>首浴汤法，东方头皮汤疗的复兴</h2>
+            <p>总部发布的新品、项目步骤、培训通知、门店活动，会展示给所有代理商账号。</p>
+            <div class="hero-actions">
+              <button class="light-button">查看物料</button>
+              <button class="ghost-button">查看我的物流</button>
+            </div>
+          </div>
+          <div class="hero-poster">
+            <img id="heroPoster" src="./assets/poster-06.jpg" alt="首浴堂宣传海报" />
+            <div class="poster-counter"><span id="posterIndex">1</span>/13</div>
+          </div>
+        </section>
+
+        <section class="promo-strip" aria-label="快捷宣传位">
+          <article class="promo-link" data-target-view="store">
+            <span>总部主推</span>
+            <strong>洗润系列补货专区</strong>
+          </article>
+          <article class="promo-link" data-target-view="training">
+            <span>培训物料</span>
+            <strong>首浴汤法五步流程</strong>
+          </article>
+          <article class="promo-link" data-target-view="orders">
+            <span>我的物流</span>
+            <strong>顺丰 SF13890022</strong>
+          </article>
+        </section>
+
+        <section class="view active" id="store">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">代理端</p>
+              <h2>我要拿货</h2>
+            </div>
+            <div class="filters">
+              <button class="filter active">全部</button>
+              <button class="filter">洗护</button>
+              <button class="filter">头皮护理</button>
+              <button class="filter">项目耗材</button>
+            </div>
+          </div>
+
+          <div class="store-grid">
+            <section class="product-list" aria-label="产品列表">
+              <article class="product-row">
+                <img class="product-thumb" src="./assets/poster-01.jpg" alt="洗润产品" />
+                <div class="product-info">
+                  <strong>洗润头皮养护液</strong>
+                  <span>规格 500ml / 箱规 24 瓶 / 当前账号 A级代理价</span>
+                </div>
+                <div class="price">¥68.00</div>
+                <div class="stepper" data-price="68" data-name="洗润头皮养护液">
+                  <button class="minus">-</button>
+                  <input type="number" value="2" min="0" />
+                  <button class="plus">+</button>
+                </div>
+              </article>
+
+              <article class="product-row">
+                <img class="product-thumb" src="./assets/poster-02.jpg" alt="发膜产品" />
+                <div class="product-info">
+                  <strong>首浴堂头皮发膜</strong>
+                  <span>规格 250g / 箱规 36 罐 / 适合门店项目搭配</span>
+                </div>
+                <div class="price">¥88.00</div>
+                <div class="stepper" data-price="88" data-name="首浴堂头皮发膜">
+                  <button class="minus">-</button>
+                  <input type="number" value="1" min="0" />
+                  <button class="plus">+</button>
+                </div>
+              </article>
+
+              <article class="product-row">
+                <img class="product-thumb" src="./assets/poster-03.jpg" alt="川源产品" />
+                <div class="product-info">
+                  <strong>川源护理乳</strong>
+                  <span>规格 1000ml / 箱规 12 瓶 / 门店高频消耗品</span>
+                </div>
+                <div class="price">¥126.00</div>
+                <div class="stepper" data-price="126" data-name="川源护理乳">
+                  <button class="minus">-</button>
+                  <input type="number" value="3" min="0" />
+                  <button class="plus">+</button>
+                </div>
+              </article>
+            </section>
+
+            <aside class="order-panel">
+              <div class="panel-head">
+                <h3>本次拿货单</h3>
+                <span id="orderCount">6 件</span>
+              </div>
+              <div id="cartLines" class="cart-lines"></div>
+              <dl class="summary">
+                <div>
+                  <dt>产品金额</dt>
+                  <dd id="subtotal">¥0.00</dd>
+                </div>
+                <div>
+                  <dt>结算方式</dt>
+                  <dd>先拿货 / 月结</dd>
+                </div>
+                <div>
+                  <dt>收货账号</dt>
+                  <dd>上海静安一店</dd>
+                </div>
+              </dl>
+              <button class="primary-button wide" id="submitOrderButton">提交给总台审核</button>
+              <p class="hint">提交后，总台后台会出现这张叫货单。总台填入物流单号后，你在“我的订单”里查看。</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="materials">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">总部发布</p>
+              <h2>物料宣传</h2>
+            </div>
+          </div>
+
+          <div class="material-sections">
+            <section class="material-section">
+              <div class="material-section-head">
+                <h3>品牌经典海报</h3>
+                <span>总部长期发布</span>
+              </div>
+              <div class="poster-group-grid">
+                <article class="poster-group-card agent-group-card" data-agent-group="classic">
+                  <div class="group-cover"><img src="./assets/poster-06.jpg" alt="" /><img src="./assets/poster-08.jpg" alt="" /><img src="./assets/poster-09.jpg" alt="" /></div>
+                  <div><span>3 张海报</span><strong>品牌经典海报组</strong><p>点开查看整组并下载 PDF</p></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="material-section">
+              <div class="material-section-head">
+                <h3>实时活动海报下载</h3>
+                <span>门店活动随时下载使用</span>
+              </div>
+              <div class="poster-group-grid">
+                <article class="poster-group-card agent-group-card" data-agent-group="activity">
+                  <div class="group-cover"><img src="./assets/poster-10.jpg" alt="" /><img src="./assets/poster-11.jpg" alt="" /><img src="./assets/poster-12.jpg" alt="" /></div>
+                  <div><span>5 张海报</span><strong>首浴汤法步骤活动组</strong><p>点开查看整组并下载 PDF</p></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="material-section">
+              <div class="material-section-head">
+                <h3>新品上架海报</h3>
+                <span>新品和商品图片由总台上架控制</span>
+              </div>
+              <div class="poster-group-grid">
+                <article class="poster-group-card agent-group-card" data-agent-group="newProducts">
+                  <div class="group-cover"><img src="./assets/poster-01.jpg" alt="" /><img src="./assets/poster-02.jpg" alt="" /><img src="./assets/poster-03.jpg" alt="" /></div>
+                  <div><span>3 张海报</span><strong>新品上架海报组</strong><p>点开查看整组并下载 PDF</p></div>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <section class="group-editor agent-group-view" id="agentGroupView">
+            <div class="material-section-head">
+              <h3 id="agentGroupTitle">品牌经典海报组</h3>
+              <span>整组物料下载</span>
+            </div>
+            <button class="primary-button group-download">下载整组 PDF</button>
+            <div class="poster-grid compact-posters">
+              <article class="poster-card"><img src="./assets/poster-06.jpg" alt="" /><div><span>组内海报</span><strong>东方头皮汤疗的复兴</strong><button class="download-button" data-pdf="poster-06">下载单张 PDF</button></div></article>
+              <article class="poster-card"><img src="./assets/poster-08.jpg" alt="" /><div><span>组内海报</span><strong>汤法起源</strong><button class="download-button" data-pdf="poster-08">下载单张 PDF</button></div></article>
+              <article class="poster-card"><img src="./assets/poster-09.jpg" alt="" /><div><span>组内海报</span><strong>首浴汤法原理</strong><button class="download-button" data-pdf="poster-09">下载单张 PDF</button></div></article>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="orders">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">只显示当前账号</p>
+              <h2>我的订单与物流</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>订单号</th>
+                  <th>拿货内容</th>
+                  <th>金额</th>
+                  <th>状态</th>
+                  <th>物流信息</th>
+                  <th>下单时间</th>
+                </tr>
+              </thead>
+              <tbody id="agentOrdersBody">
+                <tr>
+                  <td>SYT20260608001</td>
+                  <td>洗润 2 / 发膜 1 / 川源 3</td>
+                  <td>¥602.00</td>
+                  <td><span class="status preparing">总台备货中</span></td>
+                  <td>待总台填写</td>
+                  <td>2026-06-08 16:42</td>
+                </tr>
+                <tr>
+                  <td>SYT20260607003</td>
+                  <td>洗润 6 / 项目耗材 2</td>
+                  <td>¥816.00</td>
+                  <td><span class="status shipped">已发货</span></td>
+                  <td>顺丰 SF13890022</td>
+                  <td>2026-06-07 10:21</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="view" id="training">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">代理登录后可见</p>
+              <h2>培训物料</h2>
+            </div>
+          </div>
+
+          <div class="training-layout">
+            <aside class="training-list" aria-label="培训资料列表">
+              <div id="trainingList"></div>
+            </aside>
+
+            <article class="training-reader">
+              <div id="trainingReader"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="bills">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">当前账号</p>
+              <h2>我的结算账单</h2>
+            </div>
+            <button class="secondary-button">下载回执</button>
+          </div>
+
+          <div class="receipt">
+            <div class="receipt-brand"><img src="./logo-horizontal.png" alt="首浴堂" /></div>
+            <div class="receipt-head">
+              <div>
+                <span>回执编号 RC20260608001</span>
+                <h3>首浴堂上海静安一店拿货结算回执</h3>
+              </div>
+              <strong>合计 ¥602.00</strong>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>产品</th>
+                  <th>数量</th>
+                  <th>单价</th>
+                  <th>箱规</th>
+                  <th>小计</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>洗润头皮养护液</td><td>2</td><td>¥68</td><td>24 瓶/箱</td><td>¥136</td></tr>
+                <tr><td>首浴堂头皮发膜</td><td>1</td><td>¥88</td><td>36 罐/箱</td><td>¥88</td></tr>
+                <tr><td>川源护理乳</td><td>3</td><td>¥126</td><td>12 瓶/箱</td><td>¥378</td></tr>
+              </tbody>
+            </table>
+            <div class="receipt-foot">
+              <span>物流：待总台填写</span>
+              <span>结算方式：月结</span>
+              <span>门店确认：待确认</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./training-data.js?v=20260608-5"></script>
+    <script src="./app.js?v=20260608-7"></script>
+    <script src="./live-api.js?v=20260608-1"></script>
+  </body>
+</html>

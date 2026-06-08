@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首浴堂总台后台原型</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell admin-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="brand-logo" src="./logo-horizontal.png" alt="首浴堂 Head Bathing" />
+          <div>
+            <strong>总台后台</strong>
+            <span>工厂员工使用</span>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-view="adminOrders">订单与发货</button>
+          <button class="nav-item" data-view="adminProducts">商品上架</button>
+          <button class="nav-item" data-view="adminAccounts">商户账号</button>
+          <button class="nav-item" data-view="adminMaterials">宣传物料</button>
+          <button class="nav-item" data-view="adminBills">账单回执</button>
+        </nav>
+
+        <div class="account-box">
+          <span>后台登录</span>
+          <strong>总台员工</strong>
+          <small>可管理所有代理商账号</small>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">独立后台，不放在代理首页</p>
+            <h1>处理代理叫货、创建商品、创建账号、填写物流单号</h1>
+          </div>
+          <div class="top-actions">
+            <a class="secondary-link" href="./index.html">查看代理端</a>
+            <button class="primary-button" data-jump-view="adminProducts">新建商品</button>
+          </div>
+        </header>
+
+        <section class="view active" id="adminOrders">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">代理提交后，总台在这里看到</p>
+              <h2>订单与发货</h2>
+            </div>
+            <button class="secondary-button" data-feedback="订单 Excel 已准备">导出订单</button>
+          </div>
+
+          <div class="metrics">
+            <div class="metric"><span>今日叫货单</span><strong>18</strong></div>
+            <div class="metric"><span>待填物流</span><strong>7</strong></div>
+            <div class="metric"><span>本月月结</span><strong>¥42,860</strong></div>
+            <div class="metric"><span>活跃代理</span><strong>26</strong></div>
+          </div>
+
+          <section class="notification-center">
+            <div class="panel-head">
+              <h3>总台通知</h3>
+              <span id="notificationCount">3 条待处理</span>
+            </div>
+            <div class="notification-list" id="notificationList">
+              <article>
+                <span>拿货申请</span>
+                <strong>上海静安一店提交拿货单 SYT20260608001</strong>
+                <p>洗润 2 / 发膜 1 / 川源 3，等待总台备货并填写物流。</p>
+                <button class="text-button" data-jump-view="adminOrders">处理发货</button>
+              </article>
+              <article>
+                <span>申请成为代理</span>
+                <strong>上海静安二店提交代理申请</strong>
+                <p>联系人：张女士 / 电话：13800000000 / 原因：希望开通拿货权限。</p>
+                <button class="text-button" data-jump-view="adminAccounts">去创建账号</button>
+              </article>
+              <article>
+                <span>联系总部开通账号</span>
+                <strong>杭州新门店请求开通订货账号</strong>
+                <p>联系人：李先生 / 电话：13900000000 / 店家信息：杭州滨江新店。</p>
+                <button class="text-button" data-jump-view="adminAccounts">去创建账号</button>
+              </article>
+            </div>
+          </section>
+
+          <div class="fulfillment-layout">
+            <section class="order-select-panel">
+              <div class="panel-head">
+                <h3>选择要发货的订单</h3>
+                <span>2 单待处理</span>
+              </div>
+              <button class="shipment-order active" data-order-id="SYT20260608001" data-agent="上海静安一店" data-phone="13800000001" data-address="上海市静安区南京西路 188 号" data-items="洗润头皮养护液 x2；首浴堂头皮发膜 x1；川源护理乳 x3" data-total="¥602.00" data-logistics="待填写">
+                <span>SYT20260608001</span>
+                <strong>上海静安一店</strong>
+                <small>待发货 / ¥602.00</small>
+              </button>
+              <button class="shipment-order" data-order-id="SYT20260607009" data-agent="杭州滨江代理" data-phone="13900000006" data-address="杭州市滨江区江南大道 66 号" data-items="洗润头皮养护液 x12；川源护理乳 x6" data-total="¥1,438.00" data-logistics="顺丰 SF13890022">
+                <span>SYT20260607009</span>
+                <strong>杭州滨江代理</strong>
+                <small>已发货 / ¥1,438.00</small>
+              </button>
+              <button class="shipment-order" data-order-id="SYT20260606013" data-agent="苏州园区店" data-phone="13700000013" data-address="苏州市工业园区星湖街 9 号" data-items="发膜 x4；项目耗材 x10" data-total="¥856.00" data-logistics="中通 ZT66092811">
+                <span>SYT20260606013</span>
+                <strong>苏州园区店</strong>
+                <small>已完成 / ¥856.00</small>
+              </button>
+            </section>
+
+            <section class="shipment-detail" id="shipmentDetail">
+              <div class="panel-head">
+                <h3>当前发货订单</h3>
+                <span id="selectedOrderId">SYT20260608001</span>
+              </div>
+              <dl class="shipment-info">
+                <div><dt>代理/门店</dt><dd id="selectedAgent">上海静安一店</dd></div>
+                <div><dt>联系电话</dt><dd id="selectedPhone">13800000001</dd></div>
+                <div><dt>收货地址</dt><dd id="selectedAddress">上海市静安区南京西路 188 号</dd></div>
+                <div><dt>拿货明细</dt><dd id="selectedItems">洗润头皮养护液 x2；首浴堂头皮发膜 x1；川源护理乳 x3</dd></div>
+                <div><dt>订单金额</dt><dd id="selectedTotal">¥602.00</dd></div>
+                <div><dt>当前物流</dt><dd id="selectedLogistics">待填写</dd></div>
+              </dl>
+
+              <form class="shipment-form">
+                <h3>填写物流追踪信息</h3>
+                <label>订单号<input id="shipOrderInput" value="SYT20260608001" /></label>
+                <label>物流公司<input value="顺丰速运" /></label>
+                <label>物流单号<input value="SF13890022" /></label>
+                <label>经办人<input value="王师傅" /></label>
+                <button class="primary-button" id="saveShipmentButton" data-feedback="物流已保存，代理端可查看">保存，代理端可查看</button>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="adminProducts">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">商品创建后，会显示到代理端拿货页</p>
+              <h2>商品上架</h2>
+            </div>
+            <button class="secondary-button" data-feedback="已打开批量导入模板">批量导入</button>
+          </div>
+
+          <form class="logistics-form product-admin-form">
+            <h3>新增拿货商品</h3>
+            <label>商品名称<input value="首浴堂头皮发膜" /></label>
+            <label>规格<input value="250g" /></label>
+            <label>箱规<input value="36 罐/箱" /></label>
+            <label>A级代理价<input value="88" /></label>
+            <label>库存<input value="320" /></label>
+            <label>商品分类<input value="头皮护理" /></label>
+            <label class="file-upload product-image-upload">
+              商品图片
+              <input type="file" accept="image/*" />
+              <span>选择产品图或海报</span>
+            </label>
+              <button class="primary-button" id="saveProductButton" data-feedback="商品已保存并上架">保存并上架到独立站</button>
+          </form>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>商品</th><th>规格</th><th>箱规</th><th>代理价</th><th>商品图片</th><th>库存</th><th>状态</th></tr></thead>
+              <tbody id="adminProductsBody">
+                <tr><td>洗润头皮养护液</td><td>500ml</td><td>24 瓶/箱</td><td>¥68</td><td>poster-01.jpg</td><td>186</td><td><span class="status done">已上架</span></td></tr>
+                <tr><td>首浴堂头皮发膜</td><td>250g</td><td>36 罐/箱</td><td>¥88</td><td>poster-02.jpg</td><td>320</td><td><span class="status done">已上架</span></td></tr>
+                <tr><td>川源护理乳</td><td>1000ml</td><td>12 瓶/箱</td><td>¥126</td><td>poster-03.jpg</td><td>94</td><td><span class="status shipped">低库存</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="view" id="adminAccounts">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">创建后，代理商用自己的账号登录独立站</p>
+              <h2>商户账号</h2>
+            </div>
+            <button class="primary-button" data-feedback="临时密码已生成：SYT888">生成临时密码</button>
+          </div>
+
+          <div class="agent-layout">
+            <form class="agent-form">
+              <h3>新增商户账号</h3>
+              <label>账号类型<input value="区域代理 / 门店账号" /></label>
+              <label>代理或门店名称<input value="上海静安二店" /></label>
+              <label>负责人<input value="张女士" /></label>
+              <label>手机号码<input value="13800000000" /></label>
+              <label>收货地址<input value="上海市静安区..." /></label>
+              <label>价格等级<input value="A级代理价" /></label>
+              <button class="primary-button wide" id="createAccountButton" data-feedback="商户账号已创建">创建账号</button>
+            </form>
+
+            <section class="credential-result" id="credentialResult">
+              <div class="panel-head">
+                <h3>账号创建结果</h3>
+                <span>可发给代理商</span>
+              </div>
+              <dl>
+                <div><dt>登录账号</dt><dd>STORE-002</dd></div>
+                <div><dt>初始密码</dt><dd>SYT888</dd></div>
+                <div><dt>账号归属</dt><dd>上海静安二店</dd></div>
+                <div><dt>价格等级</dt><dd>A级代理价</dd></div>
+              </dl>
+              <button class="secondary-button" data-feedback="登录信息已复制">复制账号密码</button>
+            </section>
+
+            <div class="table-wrap agent-table">
+              <table>
+                <thead><tr><th>账号</th><th>类型</th><th>本月拿货</th><th>欠款/月结</th><th>最近物流</th><th>状态</th></tr></thead>
+                <tbody id="adminAccountsBody">
+                  <tr><td>STORE-001 上海静安一店</td><td>门店</td><td>¥6,820</td><td>¥2,160</td><td>SF13890022</td><td><span class="status done">正常</span></td></tr>
+                  <tr><td>AGENT-006 杭州滨江代理</td><td>区域代理</td><td>¥18,400</td><td>¥8,900</td><td>YT7392811</td><td><span class="status shipped">月结中</span></td></tr>
+                  <tr><td>STORE-013 苏州园区店</td><td>门店</td><td>¥4,280</td><td>¥0</td><td>ZT66092811</td><td><span class="status done">正常</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="adminMaterials">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">发布后，代理端“物料宣传”可见</p>
+              <h2>宣传物料</h2>
+            </div>
+            <button class="secondary-button" id="openPosterForm">新增海报位</button>
+          </div>
+
+          <form class="poster-form" id="posterForm">
+            <h3>新增/编辑海报</h3>
+            <label>海报标题<input value="六月新品上架海报" /></label>
+            <label>海报分区<input value="新品上架海报" /></label>
+            <label class="file-upload">
+              海报文件
+              <input type="file" accept="image/*,.pdf" />
+              <span>选择图片或 PDF</span>
+            </label>
+            <label>发布范围<input value="全部代理商账号" /></label>
+            <button class="primary-button" data-feedback="海报已发布到代理端">保存并发布到代理端</button>
+          </form>
+
+          <section class="material-section banner-manager">
+            <div class="material-section-head">
+              <h3>代理首页 Banner 轮播控制</h3>
+              <span>多张 Banner，按顺序轮播</span>
+            </div>
+            <form class="banner-form">
+              <label>Banner 标题<input value="首浴汤法，东方头皮汤疗的复兴" /></label>
+              <label>跳转位置<input value="物料宣传 / 品牌经典海报" /></label>
+              <label class="file-upload">
+                Banner 图片
+                <input type="file" accept="image/*" />
+                <span>选择首页 Banner 图</span>
+              </label>
+              <label>显示状态<input value="已启用，全部代理可见" /></label>
+              <button class="primary-button" data-feedback="Banner 轮播设置已保存">保存 Banner 设置</button>
+            </form>
+            <div class="banner-list">
+              <article><img src="./assets/poster-06.jpg" alt="Banner 1" /><div><strong>品牌主视觉</strong><span>排序 1 / 已启用</span></div><button class="text-button banner-edit">编辑</button><button class="text-button danger banner-delete">删除</button></article>
+              <article><img src="./assets/poster-01.jpg" alt="Banner 2" /><div><strong>新品洗润系列</strong><span>排序 2 / 已启用</span></div><button class="text-button banner-edit">编辑</button><button class="text-button danger banner-delete">删除</button></article>
+              <article><img src="./assets/poster-04.jpg" alt="Banner 3" /><div><strong>门店活动</strong><span>排序 3 / 已启用</span></div><button class="text-button banner-edit">编辑</button><button class="text-button danger banner-delete">删除</button></article>
+            </div>
+          </section>
+
+          <div class="material-sections">
+            <section class="material-section">
+              <div class="material-section-head">
+                <h3>品牌经典海报</h3>
+                <span>长期可用</span>
+              </div>
+              <div class="poster-group-grid">
+                <article class="poster-group-card" data-group="classic">
+                  <div class="group-cover"><img src="./assets/poster-06.jpg" alt="品牌经典海报组" /><img src="./assets/poster-08.jpg" alt="" /><img src="./assets/poster-09.jpg" alt="" /></div>
+                  <div><span>3 张海报</span><strong>品牌经典海报组</strong><p>品牌介绍、汤法起源、汤法原理</p><div class="card-actions"><button class="text-button">进入编辑</button><button class="text-button danger">删除整组</button></div></div>
+                </article>
+                <article class="poster-group-card" data-group="classic-product">
+                  <div class="group-cover"><img src="./assets/poster-01.jpg" alt="产品经典海报组" /><img src="./assets/poster-02.jpg" alt="" /><img src="./assets/poster-03.jpg" alt="" /></div>
+                  <div><span>3 张海报</span><strong>产品经典海报组</strong><p>可长期给门店下载使用</p><div class="card-actions"><button class="text-button">进入编辑</button><button class="text-button danger">删除整组</button></div></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="material-section">
+              <div class="material-section-head">
+                <h3>实时活动海报下载</h3>
+                <span>活动期更新</span>
+              </div>
+              <div class="poster-group-grid">
+                <article class="poster-group-card" data-group="activity-steps">
+                  <div class="group-cover"><img src="./assets/poster-10.jpg" alt="活动步骤海报组" /><img src="./assets/poster-11.jpg" alt="" /><img src="./assets/poster-12.jpg" alt="" /></div>
+                  <div><span>5 张海报</span><strong>首浴汤法步骤活动组</strong><p>Step 1 到 Step 5 的活动物料</p><div class="card-actions"><button class="text-button">进入编辑</button><button class="text-button danger">删除整组</button></div></div>
+                </article>
+              </div>
+            </section>
+
+            <section class="material-section">
+              <div class="material-section-head">
+                <h3>新品上架海报</h3>
+                <span>随商品上新同步</span>
+              </div>
+              <div class="poster-group-grid">
+                <article class="poster-group-card" data-group="new-products">
+                  <div class="group-cover"><img src="./assets/poster-01.jpg" alt="新品上架海报组" /><img src="./assets/poster-02.jpg" alt="" /><img src="./assets/poster-03.jpg" alt="" /></div>
+                  <div><span>3 张海报</span><strong>新品上架海报组</strong><p>洗润、头皮发膜、川源护理乳</p><div class="card-actions"><button class="text-button">进入编辑</button><button class="text-button danger">删除整组</button></div></div>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <section class="group-editor" id="groupEditor">
+            <div class="material-section-head">
+              <h3 id="groupEditorTitle">品牌经典海报组</h3>
+              <span>组内海报可排序、裁剪、删除</span>
+            </div>
+            <div class="crop-panel">
+              <div class="crop-preview">
+                <img id="cropPreview" src="./assets/poster-06.jpg" alt="裁剪预览" />
+                <div class="crop-box"></div>
+              </div>
+              <div class="crop-controls">
+                <h4>裁剪设置</h4>
+                <label>裁剪比例
+                  <select id="cropRatio">
+                    <option value="poster">3:4 海报</option>
+                    <option value="banner">16:9 Banner</option>
+                    <option value="square">1:1 方图</option>
+                  </select>
+                </label>
+                <label>显示区域
+                  <select id="cropMode">
+                    <option>居中裁剪</option>
+                    <option>靠上裁剪</option>
+                    <option>靠下裁剪</option>
+                    <option>自定义拖动</option>
+                  </select>
+                </label>
+                <button class="primary-button" id="saveCrop">保存裁剪</button>
+              </div>
+            </div>
+            <div class="poster-grid compact-posters">
+              <article class="poster-card manage-card"><img src="./assets/poster-06.jpg" alt="" /><div><span>组内海报</span><strong>东方头皮汤疗的复兴</strong><div class="card-actions"><button class="text-button">裁剪</button><button class="text-button danger">删除</button></div></div></article>
+              <article class="poster-card manage-card"><img src="./assets/poster-08.jpg" alt="" /><div><span>组内海报</span><strong>汤法起源</strong><div class="card-actions"><button class="text-button">裁剪</button><button class="text-button danger">删除</button></div></div></article>
+              <article class="poster-card manage-card"><img src="./assets/poster-09.jpg" alt="" /><div><span>组内海报</span><strong>首浴汤法原理</strong><div class="card-actions"><button class="text-button">裁剪</button><button class="text-button danger">删除</button></div></div></article>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="adminBills">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">按代理商生成</p>
+              <h2>账单回执</h2>
+            </div>
+            <button class="secondary-button" id="exportBills">导出账单 Excel</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>代理</th><th>账期</th><th>订单数</th><th>应结金额</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>
+                <tr><td>上海静安一店</td><td>2026-06</td><td>8</td><td>¥6,820</td><td><span class="status shipped">待确认</span></td><td><button class="text-button" data-feedback="回执文件已准备">下载回执</button></td></tr>
+                <tr><td>杭州滨江代理</td><td>2026-06</td><td>16</td><td>¥18,400</td><td><span class="status preparing">待结算</span></td><td><button class="text-button" data-feedback="已展开账单明细">查看明细</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260608-7"></script>
+    <script src="./live-api.js?v=20260608-1"></script>
+  </body>
+</html>
