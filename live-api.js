@@ -270,6 +270,16 @@ async function loadOrdersLive() {
   panel.querySelectorAll(".shipment-order").forEach((item) => item.remove());
   panel.querySelectorAll(".hint").forEach((item) => item.remove());
   panel.insertAdjacentHTML("beforeend", buttons || '<p class="hint">暂无订单</p>');
+  if (!orders.length) {
+    ["#selectedOrderId", "#selectedAgent", "#selectedPhone", "#selectedAddress", "#selectedItems", "#selectedTotal", "#selectedLogistics"].forEach((selector) => {
+      const node = document.querySelector(selector);
+      if (node) node.textContent = selector === "#selectedLogistics" ? "待填写" : "-";
+    });
+    const shipInput = document.querySelector("#shipOrderInput");
+    if (shipInput) shipInput.value = "";
+    const detail = document.querySelector("#shipmentDetail");
+    if (detail) detail.dataset.liveId = "";
+  }
   bindLiveShipmentOrders();
 }
 

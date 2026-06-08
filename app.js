@@ -209,7 +209,11 @@ document.querySelector("#openPosterForm")?.addEventListener("click", () => {
 });
 
 document.querySelectorAll("[data-feedback]").forEach((button) => {
-  button.addEventListener("click", () => showToast(button.dataset.feedback));
+  button.addEventListener("click", () => {
+    const liveControlledIds = new Set(["saveShipmentButton", "saveProductButton", "createAccountButton", "submitApplication"]);
+    if (liveControlledIds.has(button.id) || button.closest(".banner-form")) return;
+    showToast(button.dataset.feedback);
+  });
 });
 
 document.querySelectorAll(".file-upload input[type='file']").forEach((input) => {
@@ -530,24 +534,59 @@ document.querySelectorAll(".group-download").forEach((button) => {
 });
 
 document.querySelector("#createAccountButton")?.addEventListener("click", () => {
+  if (localStorage.getItem("syt-live-session")) return;
   const credentialResult = document.querySelector("#credentialResult");
   credentialResult?.classList.add("open");
   credentialResult?.scrollIntoView({ behavior: "smooth", block: "center" });
   showToast("账号已创建：STORE-002 / 初始密码 SYT888");
 });
 
+function cropDimensions(value) {
+  if (!cropPreview) return null;
+  const parentRect = cropPreview.getBoundingClientRect();
+  if (!parentRect.width || !parentRect.height) return null;
+  const ratio = value === "banner" ? 16 / 9 : value === "square" ? 1 : 3 / 4;
+  const maxWidth = parentRect.width * 0.84;
+  const maxHeight = parentRect.height * 0.84;
+  let width = maxWidth;
+  let height = width / ratio;
+
+  if (height > maxHeight) {
+    height = maxHeight;
+    width = height * ratio;
+  }
+
+  return {
+    parentRect,
+    width,
+    height,
+    left: (parentRect.width - width) / 2,
+    top: (parentRect.height - height) / 2,
+  };
+}
+
+function placeCropBox(value = document.querySelector("#cropRatio")?.value || "poster", mode = document.querySelector("#cropMode")?.value || "center") {
+  if (!cropBox || !cropPreview) return;
+  const dimensions = cropDimensions(value);
+  if (!dimensions) return;
+  let top = dimensions.top;
+  if (mode.includes("靠上")) top = dimensions.parentRect.height * 0.06;
+  if (mode.includes("靠下")) top = dimensions.parentRect.height - dimensions.height - dimensions.parentRect.height * 0.06;
+
+  cropBox.style.left = `${dimensions.left}px`;
+  cropBox.style.top = `${Math.max(0, top)}px`;
+  cropBox.style.right = "auto";
+  cropBox.style.bottom = "auto";
+  cropBox.style.width = `${dimensions.width}px`;
+  cropBox.style.height = `${dimensions.height}px`;
+  cropBox.style.aspectRatio = value === "banner" ? "16 / 9" : value === "square" ? "1 / 1" : "3 / 4";
+}
+
 function setCropRatio(value) {
   if (!cropBox || !cropPreview) return;
   cropPreview.classList.toggle("ratio-banner", value === "banner");
   cropPreview.classList.toggle("ratio-square", value === "square");
-  cropBox.style.left = "";
-  cropBox.style.top = "";
-  cropBox.style.right = "";
-  cropBox.style.bottom = "";
-  cropBox.style.width = "";
-  cropBox.style.height = "";
-  cropBox.style.aspectRatio = value === "banner" ? "16 / 9" : value === "square" ? "1 / 1" : "3 / 4";
-  cropBox.style.inset = value === "banner" ? "8%" : value === "square" ? "14%" : "10% 18%";
+  placeCropBox(value);
 }
 
 document.querySelector("#cropRatio")?.addEventListener("change", (event) => {
@@ -557,10 +596,7 @@ document.querySelector("#cropRatio")?.addEventListener("change", (event) => {
 });
 
 document.querySelector("#cropMode")?.addEventListener("change", (event) => {
-  if (!cropBox) return;
-  if (event.target.value.includes("靠上")) cropBox.style.inset = "4% 16% 24% 16%";
-  if (event.target.value.includes("靠下")) cropBox.style.inset = "24% 16% 4% 16%";
-  if (event.target.value.includes("居中")) cropBox.style.inset = "12% 14%";
+  placeCropBox(document.querySelector("#cropRatio")?.value || "poster", event.target.value);
   showToast("显示区域已切换");
 });
 
@@ -569,6 +605,8 @@ document.querySelector("#saveCrop")?.addEventListener("click", () => {
 });
 
 if (cropBox && cropPreview) {
+  placeCropBox();
+  window.addEventListener("resize", () => placeCropBox());
   let dragging = false;
   let startX = 0;
   let startY = 0;
