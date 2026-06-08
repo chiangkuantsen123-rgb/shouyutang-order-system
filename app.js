@@ -19,6 +19,7 @@ const cropPreview = document.querySelector(".crop-preview");
 const notificationList = document.querySelector("#notificationList");
 const notificationCount = document.querySelector("#notificationCount");
 const noticeStorageKey = "syt-head-office-notices";
+const materialStorageKey = "syt-material-groups";
 
 document.querySelectorAll("form button").forEach((button) => {
   button.type = "button";
@@ -250,20 +251,151 @@ document.querySelectorAll(".banner-delete").forEach((button) => {
   });
 });
 
+function readGroupFromCard(card) {
+  return {
+    id: card.dataset.group || card.dataset.agentGroup || `group-${Date.now()}`,
+    title: card.querySelector("strong")?.textContent?.trim() || "海报组",
+    description: card.querySelector("p")?.textContent?.trim() || "",
+    category: card.closest(".material-section")?.querySelector("h3")?.textContent?.trim() || "宣传物料",
+    images: [...card.querySelectorAll(".group-cover img")].map((image, index) => ({
+      title: image.alt || `海报 ${index + 1}`,
+      url: image.getAttribute("src") || "./assets/poster-06.jpg",
+    })),
+  };
+}
+
+function saveStoredGroup(group) {
+  const stored = JSON.parse(localStorage.getItem(materialStorageKey) || "{}");
+  stored[group.id] = group;
+  localStorage.setItem(materialStorageKey, JSON.stringify(stored));
+}
+
+function loadStoredGroup(card) {
+  const id = card.dataset.group || card.dataset.agentGroup;
+  const stored = JSON.parse(localStorage.getItem(materialStorageKey) || "{}");
+  return stored[id] || readGroupFromCard(card);
+}
+
+function renderCardFromGroup(card, group) {
+  const cover = card.querySelector(".group-cover");
+  const title = card.querySelector("strong");
+  const description = card.querySelector("p");
+  const count = card.querySelector("span");
+
+  if (cover) {
+    cover.innerHTML = group.images
+      .slice(0, 4)
+      .map((image) => `<img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.title)}" />`)
+      .join("");
+  }
+  if (title) title.textContent = group.title;
+  if (description) description.textContent = group.description;
+  if (count) count.textContent = `${group.images.length} 张海报`;
+}
+
+function ensureGroupEditForm() {
+  if (!groupEditor || document.querySelector("#materialGroupForm")) return;
+  const form = document.createElement("div");
+  form.className = "material-group-form";
+  form.id = "materialGroupForm";
+  form.innerHTML = `
+    <div class="form-grid">
+      <label>整组名称<input id="editGroupTitle" /></label>
+      <label>所在分区<input id="editGroupCategory" /></label>
+      <label class="wide">整组说明<input id="editGroupDescription" /></label>
+    </div>
+    <div class="material-editor-head">
+      <h4>组内图片</h4>
+      <button class="secondary-button" id="addGroupPoster" type="button">新增图片</button>
+    </div>
+    <div class="poster-edit-list" id="posterEditList"></div>
+    <button class="primary-button" id="saveGroupEdit" type="button">保存整组编辑</button>
+  `;
+  groupEditor.insertBefore(form, groupEditor.querySelector(".crop-panel"));
+}
+
+function renderPosterEditList(group) {
+  const list = document.querySelector("#posterEditList");
+  if (!list) return;
+  list.innerHTML = group.images
+    .map(
+      (image, index) => `
+        <article class="poster-edit-row" data-index="${index}">
+          <img src="${escapeHtml(image.url)}" alt="${escapeHtml(image.title)}" />
+          <label>图片标题<input class="poster-title-input" value="${escapeHtml(image.title)}" /></label>
+          <label>图片地址<input class="poster-url-input" value="${escapeHtml(image.url)}" /></label>
+          <button class="text-button crop-row-button" type="button">裁剪</button>
+          <button class="text-button danger delete-row-button" type="button">删除</button>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function collectEditorGroup() {
+  const card = document.querySelector(".poster-group-card.editing");
+  if (!card) return null;
+  return {
+    id: card.dataset.group || card.dataset.agentGroup,
+    title: document.querySelector("#editGroupTitle")?.value.trim() || "海报组",
+    category: document.querySelector("#editGroupCategory")?.value.trim() || "宣传物料",
+    description: document.querySelector("#editGroupDescription")?.value.trim() || "",
+    images: [...document.querySelectorAll(".poster-edit-row")].map((row, index) => ({
+      title: row.querySelector(".poster-title-input")?.value.trim() || `海报 ${index + 1}`,
+      url: row.querySelector(".poster-url-input")?.value.trim() || "./assets/poster-06.jpg",
+    })),
+  };
+}
+
+function openGroupEditor(card) {
+  const group = loadStoredGroup(card);
+  const editorTitle = document.querySelector("#groupEditorTitle");
+  const previewImage = document.querySelector("#cropPreview");
+
+  ensureGroupEditForm();
+  document.querySelectorAll(".poster-group-card.editing").forEach((item) => item.classList.remove("editing"));
+  card.classList.add("editing");
+
+  if (editorTitle) editorTitle.textContent = `正在编辑：${group.title}`;
+  if (previewImage && group.images[0]) previewImage.src = group.images[0].url;
+  const titleInput = document.querySelector("#editGroupTitle");
+  const categoryInput = document.querySelector("#editGroupCategory");
+  const descriptionInput = document.querySelector("#editGroupDescription");
+  if (titleInput) titleInput.value = group.title;
+  if (categoryInput) categoryInput.value = group.category;
+  if (descriptionInput) descriptionInput.value = group.description;
+  renderPosterEditList(group);
+
+  groupEditor?.classList.add("open");
+  groupEditor?.scrollIntoView({ behavior: "smooth", block: "start" });
+  showToast("已打开整组编辑");
+}
+
 document.querySelectorAll(".poster-group-card").forEach((card) => {
+  renderCardFromGroup(card, loadStoredGroup(card));
+
   card.addEventListener("click", (event) => {
-    if (event.target.closest("button")) return;
-    const title = card.querySelector("strong")?.textContent || "海报组";
-    const firstImage = card.querySelector("img")?.getAttribute("src") || "./assets/poster-06.jpg";
-    const editorTitle = document.querySelector("#groupEditorTitle");
-    const cropPreview = document.querySelector("#cropPreview");
-    if (groupEditor && editorTitle && cropPreview) {
-      editorTitle.textContent = title;
-      cropPreview.src = firstImage;
-      groupEditor.classList.add("open");
-      groupEditor.scrollIntoView({ behavior: "smooth", block: "start" });
-      showToast("已进入海报组编辑");
+    const button = event.target.closest("button");
+    if (button?.textContent.includes("删除整组")) {
+      const stored = JSON.parse(localStorage.getItem(materialStorageKey) || "{}");
+      delete stored[card.dataset.group || card.dataset.agentGroup];
+      localStorage.setItem(materialStorageKey, JSON.stringify(stored));
+      card.remove();
+      showToast("已删除整组");
+      return;
     }
+    if (button?.textContent.includes("进入编辑")) {
+      openGroupEditor(card);
+      return;
+    }
+    if (button) return;
+
+    if (card.dataset.group) {
+      openGroupEditor(card);
+      return;
+    }
+
+    const title = card.querySelector("strong")?.textContent || "海报组";
     const agentTitle = document.querySelector("#agentGroupTitle");
     if (agentGroupView && agentTitle) {
       agentTitle.textContent = title;
@@ -271,6 +403,52 @@ document.querySelectorAll(".poster-group-card").forEach((card) => {
       agentGroupView.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   });
+});
+
+groupEditor?.addEventListener("click", (event) => {
+  const deleteButton = event.target.closest(".delete-row-button");
+  const cropButton = event.target.closest(".crop-row-button");
+  const addButton = event.target.closest("#addGroupPoster");
+  const saveButton = event.target.closest("#saveGroupEdit");
+
+  if (deleteButton) {
+    deleteButton.closest(".poster-edit-row")?.remove();
+    showToast("已删除这张海报");
+  }
+
+  if (cropButton) {
+    const image = cropButton.closest(".poster-edit-row")?.querySelector("img");
+    const previewImage = document.querySelector("#cropPreview");
+    if (image && previewImage) previewImage.src = image.src;
+    document.querySelector(".crop-panel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    showToast("已切换到这张海报裁剪");
+  }
+
+  if (addButton) {
+    const group = collectEditorGroup();
+    if (!group) return;
+    group.images.push({ title: "新海报", url: "./assets/poster-06.jpg" });
+    renderPosterEditList(group);
+    showToast("已新增图片位");
+  }
+
+  if (saveButton) {
+    const group = collectEditorGroup();
+    const card = document.querySelector(".poster-group-card.editing");
+    if (!group || !card) return;
+    saveStoredGroup(group);
+    renderCardFromGroup(card, group);
+    document.querySelector("#groupEditorTitle").textContent = `正在编辑：${group.title}`;
+    showToast("整组编辑已保存");
+  }
+});
+
+groupEditor?.addEventListener("input", (event) => {
+  const urlInput = event.target.closest(".poster-url-input");
+  if (!urlInput) return;
+  const row = urlInput.closest(".poster-edit-row");
+  const image = row?.querySelector("img");
+  if (image) image.src = urlInput.value.trim() || "./assets/poster-06.jpg";
 });
 
 document.querySelectorAll(".group-download").forEach((button) => {
