@@ -270,6 +270,67 @@ function saveStoredGroup(group) {
   localStorage.setItem(materialStorageKey, JSON.stringify(stored));
 }
 
+function materialSession() {
+  return localStorage.getItem("syt-live-session") || "";
+}
+
+async function saveRemoteGroup(group) {
+  const session = materialSession();
+  if (!session) return false;
+  const response = await fetch("/api/materials", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session}`,
+    },
+    body: JSON.stringify(group),
+  });
+  if (!response.ok) throw new Error("物料后台保存失败");
+  return true;
+}
+
+async function deleteRemoteGroup(id) {
+  const session = materialSession();
+  if (!session) return false;
+  const response = await fetch("/api/materials", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session}`,
+    },
+    body: JSON.stringify({ id }),
+  });
+  if (!response.ok) throw new Error("物料后台删除失败");
+  return true;
+}
+
+async function loadRemoteGroups() {
+  const session = materialSession();
+  if (!session) return;
+  try {
+    const response = await fetch("/api/materials", {
+      headers: { Authorization: `Bearer ${session}` },
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    (data.groups || []).forEach((remoteGroup) => {
+      const group = {
+        id: remoteGroup.id,
+        category: remoteGroup.category,
+        title: remoteGroup.title,
+        description: remoteGroup.description,
+        images: remoteGroup.images || [],
+      };
+      saveStoredGroup(group);
+      document.querySelectorAll(`[data-group="${group.id}"], [data-agent-group="${group.id}"]`).forEach((card) => {
+        renderCardFromGroup(card, group);
+      });
+    });
+  } catch (error) {
+    console.warn(error);
+  }
+}
+
 function loadStoredGroup(card) {
   const id = card.dataset.group || card.dataset.agentGroup;
   const stored = JSON.parse(localStorage.getItem(materialStorageKey) || "{}");
@@ -378,10 +439,12 @@ document.querySelectorAll(".poster-group-card").forEach((card) => {
     const button = event.target.closest("button");
     if (button?.textContent.includes("删除整组")) {
       const stored = JSON.parse(localStorage.getItem(materialStorageKey) || "{}");
-      delete stored[card.dataset.group || card.dataset.agentGroup];
+      const groupId = card.dataset.group || card.dataset.agentGroup;
+      delete stored[groupId];
       localStorage.setItem(materialStorageKey, JSON.stringify(stored));
       card.remove();
       showToast("已删除整组");
+      deleteRemoteGroup(groupId).catch(() => showToast("本地已删除，联网后台稍后再同步"));
       return;
     }
     if (button?.textContent.includes("进入编辑")) {
@@ -405,7 +468,7 @@ document.querySelectorAll(".poster-group-card").forEach((card) => {
   });
 });
 
-groupEditor?.addEventListener("click", (event) => {
+groupEditor?.addEventListener("click", async (event) => {
   const deleteButton = event.target.closest(".delete-row-button");
   const cropButton = event.target.closest(".crop-row-button");
   const addButton = event.target.closest("#addGroupPoster");
@@ -439,9 +502,16 @@ groupEditor?.addEventListener("click", (event) => {
     saveStoredGroup(group);
     renderCardFromGroup(card, group);
     document.querySelector("#groupEditorTitle").textContent = `正在编辑：${group.title}`;
-    showToast("整组编辑已保存");
+    try {
+      const savedOnline = await saveRemoteGroup(group);
+      showToast(savedOnline ? "整组编辑已保存到后台" : "整组编辑已保存");
+    } catch (error) {
+      showToast("已暂存在当前浏览器，后台同步失败");
+    }
   }
 });
+
+loadRemoteGroups();
 
 groupEditor?.addEventListener("input", (event) => {
   const urlInput = event.target.closest(".poster-url-input");

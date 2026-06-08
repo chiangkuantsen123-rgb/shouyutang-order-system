@@ -61,8 +61,20 @@ create table if not exists notices (
   created_at timestamptz default now()
 );
 
+create table if not exists material_groups (
+  id text primary key,
+  category text not null,
+  title text not null,
+  description text,
+  images jsonb default '[]'::jsonb,
+  status text default 'active',
+  updated_at timestamptz default now(),
+  created_at timestamptz default now()
+);
+
 create index if not exists idx_orders_merchant_created on orders (merchant_id, created_at desc);
 create index if not exists idx_notices_created on notices (created_at desc);
+create index if not exists idx_material_groups_updated on material_groups (updated_at desc);
 
 insert into merchant_accounts (account_code, store_name, contact_name, phone, address, price_level, password_hash, status)
 values
@@ -80,3 +92,39 @@ insert into notices (type, title, content, target_view, status)
 values
   ('系统提示', '首浴堂真实联网后台已准备', '代理申请、订单、物流、商品都会写入 Supabase 数据库。', 'adminOrders', 'done')
 on conflict do nothing;
+
+insert into material_groups (id, category, title, description, images, status)
+values
+  (
+    'classic',
+    '品牌经典海报',
+    '品牌经典海报组',
+    '品牌介绍、汤法起源、汤法原理',
+    '[{"title":"东方头皮汤疗的复兴","url":"./assets/poster-06.jpg"},{"title":"汤法起源","url":"./assets/poster-08.jpg"},{"title":"首浴汤法原理","url":"./assets/poster-09.jpg"}]'::jsonb,
+    'active'
+  ),
+  (
+    'classic-product',
+    '品牌经典海报',
+    '产品经典海报组',
+    '可长期给门店下载使用',
+    '[{"title":"洗润系列","url":"./assets/poster-01.jpg"},{"title":"头皮发膜","url":"./assets/poster-02.jpg"},{"title":"川源护理乳","url":"./assets/poster-03.jpg"}]'::jsonb,
+    'active'
+  ),
+  (
+    'activity-steps',
+    '实时活动海报下载',
+    '首浴汤法步骤活动组',
+    'Step 1 到 Step 5 的活动物料',
+    '[{"title":"温汤","url":"./assets/poster-10.jpg"},{"title":"微气泡","url":"./assets/poster-11.jpg"},{"title":"汤气","url":"./assets/poster-12.jpg"}]'::jsonb,
+    'active'
+  ),
+  (
+    'new-products',
+    '新品上架海报',
+    '新品上架海报组',
+    '洗润、头皮发膜、川源护理乳',
+    '[{"title":"洗润头皮养护液","url":"./assets/poster-01.jpg"},{"title":"首浴堂头皮发膜","url":"./assets/poster-02.jpg"},{"title":"川源护理乳","url":"./assets/poster-03.jpg"}]'::jsonb,
+    'active'
+  )
+on conflict (id) do nothing;
