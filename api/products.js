@@ -7,7 +7,10 @@ export default async function handler(req, res) {
     if (!session) return json(res, 401, { error: "Unauthorized" });
 
     if (req.method === "GET") {
-      const query = session.role === "admin" ? "products?select=*&order=created_at.desc" : "products?status=eq.active&select=*&order=created_at.desc";
+      const query =
+        session.role === "admin"
+          ? "products?status=neq.deleted&select=*&order=created_at.desc"
+          : "products?status=eq.active&select=*&order=created_at.desc";
       const rows = await supabase(query, { method: "GET" });
       return json(res, 200, { products: rows });
     }
